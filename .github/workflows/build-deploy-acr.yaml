@@ -1,0 +1,31 @@
+name: Build and Deploy a container to ACR
+
+on:
+  pull_request: #(Sandbox)
+    types: 
+      - opened
+      - edited
+      - reopened
+      - synchronize
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+' #(SemVer)
+    branches:                 # (CI Build)
+      - '*'
+      - '!main'
+  schedule:
+      - cron: '0 0 * * SUN'  # (CI Build)
+
+jobs:
+  build-deploy-acr-app:
+    uses: CPSICorp/reusable-workflow-build-deploy-acr/.github/workflows/build-deploy-acr.yml@v2
+    with:
+      npd-environment: docker-build-2_0-docker-npd
+      pd-environment: docker-build-2_0-docker-pd
+      image-name: image.tar
+      runs-on: arc-runners-usea
+      private-registry: proget.cpsinet.com
+      retention-days: 20
+      context: .
+      timeout: 40
+    secrets: inherit
